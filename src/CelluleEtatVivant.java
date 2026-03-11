@@ -5,10 +5,10 @@ public class CelluleEtatVivant implements CelluleEtat{
     }
     @Override
     public CelluleEtat meurt(){
-        return new CelluleEtatMort();
+        return SingletonEtat.getMort();
     }
     @Override
     public boolean estVivante(){
-        return false;
+        return true;
     }
 }

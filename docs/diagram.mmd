@@ -1,0 +1,40 @@
+classDiagram
+    class Cellule {
+        -CelluleEtat etat
+        +Cellule(CelluleEtat etat)
+        +vit() void
+        +meurt() void
+        +estVivante() boolean
+    }
+
+    class CelluleEtat {
+        <<interface>>
+        +vit() CelluleEtat
+        +meurt() CelluleEtat
+        +estVivante() boolean
+    }
+
+    class CelluleEtatVivant {
+        +vit() CelluleEtat
+        +meurt() CelluleEtat
+        +estVivante() boolean
+    }
+
+    class CelluleEtatMort {
+        +vit() CelluleEtat
+        +meurt() CelluleEtat
+        +estVivante() boolean
+    }
+
+    class SingletonEtat{
+        -static final CelluleEtatVivant VIVANT
+        -static final CelluleEtatMort MORT
+        +static getVivant() CelluleEtatVivant
+        +static getMort() CelluleEtatMort
+    }
+
+    Cellule --> CelluleEtat : utilise
+    CelluleEtatVivant --> SingletonEtat : utilise
+    CelluleEtatMort --> SingletonEtat : utilise
+    CelluleEtatVivant ..|> CelluleEtat : implémente
+    CelluleEtatMort ..|> CelluleEtat : implémente
