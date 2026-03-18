@@ -1,12 +1,12 @@
 SRC=src
 BIN=bin
-MAIN=main
+MAIN=Main
 
-all: compile run
+all: compile
 
 compile:
 	mkdir -p $(BIN)
-	javac -d $(BIN) $(SRC)/*.java
+	javac -d $(BIN) $(SRC)/**/*.java $(SRC)/*.java
 
 run: compile
 	java -cp $(BIN) $(MAIN)

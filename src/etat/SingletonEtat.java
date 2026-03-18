@@ -1,13 +1,16 @@
+package etat;
+
 public class SingletonEtat {
     private static final CelluleEtatVivant VIVANT = new CelluleEtatVivant();
     private static final CelluleEtatMort MORT = new CelluleEtatMort();
 
-    private SingletonEtat(){}
+    private SingletonEtat() {}
 
-    public static CelluleEtatVivant getVivant(){
+    public static CelluleEtatVivant getVivant() {
         return VIVANT;
     }
-    public static CelluleEtatMort getMort(){
+
+    public static CelluleEtatMort getMort() {
         return MORT;
     }
 }

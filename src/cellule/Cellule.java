@@ -1,17 +1,24 @@
-public class Cellule{
+package cellule;
+
+import etat.CelluleEtat;
+import jeu.JeuDeLaVie;
+import visiteur.*;
+
+public class Cellule {
     private CelluleEtat etat;
     private int x;
     private int y;
-    public Cellule(int x, int y, CelluleEtat etat){
+
+    public Cellule(int x, int y, CelluleEtat etat) {
         this.etat = etat;
         this.x = x;
         this.y = y;
     }
 
-    public int nombreVoisinesVivantes(JeuDeLaVie jeu){
+    public int nombreVoisinesVivantes(JeuDeLaVie jeu) {
         int nbCellule = 0;
-        for(int i = x; i <= x + 1; i++){
-            for(int j = y; j <= y + 1; j++){
+        for (int i = x - 1; i <= x + 1; i++) {
+            for (int j = y - 1; j <= y + 1; j++) {
                 if (i == x && j == y) continue;
                 if (i >= 0 && i < jeu.getxMax() && j >= 0 && j < jeu.getyMax()) {
                     if (jeu.getGrilleXY(i, j).estVivante()) {
@@ -22,13 +29,19 @@ public class Cellule{
         }
         return nbCellule;
     }
-    public void vit(){
+
+    public void accepte(Visiteur visiteur){
+        etat.accepte(visiteur, this);
+    }
+    public void vit() {
         etat = etat.vit();
     }
-    public void meurt(){
-        etat = etat.meurt(); 
+
+    public void meurt() {
+        etat = etat.meurt();
     }
-    public boolean estVivante(){
+
+    public boolean estVivante() {
         return etat.estVivante();
     }
 }
