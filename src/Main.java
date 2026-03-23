@@ -9,12 +9,8 @@ public class Main {
         JeuDeLaVieUI ui = new JeuDeLaVieUI(jeu);
         ObservateurConsole console = new ObservateurConsole(jeu);
         jeu.attacheObservateur(ui);
+        jeu.attacheObservateur(console);
         jeu.setVisiteur(new VisiteurClassique(jeu));
         jeu.notifieObservateurs();
-
-        while (true) {
-            Thread.sleep(100);
-            jeu.calculeGenerationSuivante();
-        }
     }
 }

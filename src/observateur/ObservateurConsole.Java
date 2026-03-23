@@ -1,3 +1,7 @@
+package observateur;
+
+import jeu.JeuDeLaVie;
+
 public class ObservateurConsole implements Observateur{
     private int generation;
     private int celluleVivante;
@@ -18,6 +22,6 @@ public class ObservateurConsole implements Observateur{
                 }
             }
         }
-        System.out.println("Generation : " + generation + "Nombre de cellule : " + celluleVivante);
+        System.out.println("Generation: " + generation + "Cellule vivante : " + celluleVivante);
     }
 }
