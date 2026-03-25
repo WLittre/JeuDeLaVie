@@ -1,5 +1,4 @@
 package observateur;
-
 import jeu.JeuDeLaVie;
 
 public class ObservateurConsole implements Observateur{

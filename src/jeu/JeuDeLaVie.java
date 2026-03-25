@@ -104,7 +104,13 @@ public class JeuDeLaVie implements Observable {
     public int getyMax() {
         return yMax;
     }
-
+    public double setProba(double p){
+        probaVie = p;
+        return probaVie;
+    }
+    public double getProba(){
+        return probaVie;
+    }
     public void setVisiteur(Visiteur v) {
         this.visiteur = v;
     }
