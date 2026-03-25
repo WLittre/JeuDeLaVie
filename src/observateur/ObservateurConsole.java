@@ -1,3 +1,6 @@
+package observateur;
+import jeu.JeuDeLaVie;
+
 public class ObservateurConsole implements Observateur{
     private int generation;
     private int celluleVivante;
