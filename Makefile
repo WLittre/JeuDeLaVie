@@ -5,15 +5,15 @@ MAIN=Main
 all: compile
 
 compile:
-	mkdir -p $(BIN)
-	javac -d $(BIN) $(SRC)/**/*.java $(SRC)/*.java
+	@if not exist $(BIN) mkdir $(BIN)
+	javac -d $(BIN) $(SRC)/*.java $(SRC)/cellule/*.java $(SRC)/commande/*.java $(SRC)/etat/*.java $(SRC)/jeu/*.java $(SRC)/observateur/*.java $(SRC)/visiteur/*.java
 
 run: compile
 	java -cp $(BIN) $(MAIN)
 
 clean:
-	rm -rf $(BIN)
+	@if exist $(BIN) rmdir /S /Q $(BIN)
 
 rebuild: clean all
 
-.PHONY: all compile run clean rebuild
+.PHONY: all compile run clean rebuild	

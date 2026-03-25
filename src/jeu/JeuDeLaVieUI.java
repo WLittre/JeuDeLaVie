@@ -11,7 +11,7 @@ import java.awt.geom.AffineTransform;
 import java.awt.event.MouseWheelListener;
 
 import observateur.Observateur;
-import visiteur.Visiteur;
+import visiteur.VisiteurHighLife;
 import visiteur.VisiteurClassique;
 import visiteur.VisiteurDayNight;
 
@@ -24,7 +24,6 @@ public class JeuDeLaVieUI extends JPanel implements Observateur, MouseWheelListe
     private JButton btnStep;
     private JSlider sliderVitesse;
     private JComboBox<String> comboRegles;
-    private boolean running = false;
     private double zoomFactor = 1;
     private int offsetX = 0, offsetY;
     private int lastDragX = 0, lastDragY = 0;
@@ -38,73 +37,74 @@ public class JeuDeLaVieUI extends JPanel implements Observateur, MouseWheelListe
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setSize(jeu.getxMax() * 3 + 40, jeu.getyMax() * 3 + 120);
         frame.setLayout(new BorderLayout());
-        frame.add(this,BorderLayout.CENTER);
-        frame.add(creerPanneauControle(),BorderLayout.SOUTH);
-        frame.setVisible(true);
+        
 
         //Initialisation de la souris
         addMouseWheelListener(this);
         addMouseListener(this);
         addMouseMotionListener(this);
-
         
-        JButton playBtn = new JButton("Play");
+        frame.add(creerPanneauTop(),BorderLayout.NORTH);
+        frame.add(this,BorderLayout.CENTER);
+        frame.add(creerPanneauControle(),BorderLayout.SOUTH);
+        frame.setVisible(true);
+    }
+       
+    private JPanel creerPanneauTop(){
+        JPanel topPanel = new JPanel();
+        JLabel labelTaille = new JLabel(jeu.getxMax() + "x" + jeu.getyMax());
+        JTextField fieldX = new JTextField(String.valueOf(jeu.getxMax()),5);
+        JTextField fieldY = new JTextField(String.valueOf(jeu.getyMax()),5);
 
-        playBtn.addActionListener(e -> {
-        if(!running) {
-            running = true;
-
-            new Thread(() -> {
-            while (running) {
-                jeu.calculeGenerationSuivante();
-                try{
-                    Thread.sleep(100);
-                }catch (InterruptedException ex) {
-                    ex.printStackTrace();
-                }
-            }
-            }).start();
-        }
-        });
-
-        JButton pauseBtn = new JButton("Pause");
-        pauseBtn.addActionListener(e -> {
-            running = false;
-        });
-
-        /* Reset la grille button */
-        JButton resetGrilleBtn = new JButton("Reset Grille");
-        
-        JSlider densite = new JSlider(0,100,10 );
-        densite.setMajorTickSpacing(20);
-        densite.setMinorTickSpacing(5);
-        densite.setPaintTicks(true);
-        densite.setPaintLabels(true);
-        resetGrilleBtn.addActionListener(e -> {
-            jeu.setProba(densite.getValue() / 100.0);
-            System.out.println("Avant :" + jeu.getProba());
-            jeu.initializeGrille();
-            System.out.println("Apres :" + jeu.getProba());
-            jeu.notifieObservateurs();
-        });
-        JButton resetZoomBtn = new JButton("Reset zoom");
-        resetZoomBtn.addActionListener(e -> {
+        JButton resetZoomButton = new JButton("Recentrer");
+        resetZoomButton.addActionListener(e->{
             zoomFactor = 1.0;
             offsetX = 0;
             offsetY = 0;
             repaint();
         });
-        JPanel topPanel = new JPanel();
-        topPanel.add(resetZoomBtn);
-        topPanel.add(new JLabel("Densité:"));
+
+        JSlider densite = new JSlider(0,100,10);
+        densite.setMajorTickSpacing(20);
+        densite.setMinorTickSpacing(5);
+        densite.setPaintTicks(true);
+        densite.setPaintLabels(true);
+
+        JButton resetGrilleBtn = new JButton("Nouvelle Grille");
+        resetGrilleBtn.addActionListener(e -> {
+            try{
+                int newX = Integer.parseInt(fieldX.getText().trim());
+                int newY = Integer.parseInt(fieldY.getText().trim());
+                if(newX > 0 && newY > 0){
+                    jeu.setxMax(newX);
+                    jeu.setyMax(newY);
+                }
+            }catch(NumberFormatException ex){
+                System.out.println("Erreur , le format de la grille est invalide");
+            }
+            jeu.setProba(densite.getValue()/100.0);
+            jeu.initializeGrille();
+            labelTaille.setText(jeu.getxMax() + "x" + jeu.getyMax());
+            jeu.notifieObservateurs();
+        });
+        
+        JPanel pannelTaille = new JPanel();
+        pannelTaille.setLayout(new BoxLayout(pannelTaille, BoxLayout.Y_AXIS));
+        labelTaille.setAlignmentX(Component.CENTER_ALIGNMENT);
+        JPanel champsTaille = new JPanel(new FlowLayout(FlowLayout.CENTER, 2, 0));
+        champsTaille.add(fieldX);
+        champsTaille.add(new JLabel("x"));
+        champsTaille.add(fieldY);
+        pannelTaille.add(labelTaille);
+        pannelTaille.add(champsTaille);
+
+        topPanel.add(resetZoomButton);
+        topPanel.add(pannelTaille);
+        topPanel.add(new JLabel("Densité"));
         topPanel.add(densite);
         topPanel.add(resetGrilleBtn);
-        topPanel.add(playBtn);
         
-        frame.add(topPanel, BorderLayout.NORTH);
-        frame.add(this, BorderLayout.CENTER);
-        frame.setVisible(true);
-
+        return topPanel;
     }
 
     private JPanel creerPanneauControle(){
