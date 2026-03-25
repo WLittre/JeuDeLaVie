@@ -14,6 +14,7 @@ import observateur.Observateur;
 
 public class JeuDeLaVieUI extends JPanel implements Observateur, MouseWheelListener , MouseListener , MouseMotionListener {
     private JeuDeLaVie jeu;
+    private boolean running = false;
     private double zoomFactor = 1;
     private int offsetX = 0, offsetY;
     private int lastDragX = 0, lastDragY = 0;
@@ -31,20 +32,45 @@ public class JeuDeLaVieUI extends JPanel implements Observateur, MouseWheelListe
         addMouseListener(this);
         addMouseMotionListener(this);
 
-        /* Reset la grille button */
-        JButton resetGrilleBtn = new JButton("Reset Grille");
-        resetGrilleBtn.addActionListener(e -> {
-            jeu.initializeGrille();
-            jeu.notifieObservateurs();
+        
+        JButton playBtn = new JButton("Play");
+
+        playBtn.addActionListener(e -> {
+        if(!running) {
+            running = true;
+
+            new Thread(() -> {
+            while (running) {
+                jeu.calculeGenerationSuivante();
+                try{
+                    Thread.sleep(100);
+                }catch (InterruptedException ex) {
+                    ex.printStackTrace();
+                }
+            }
+            }).start();
+        }
         });
 
-        JSlider densite = new JSlider(0,100,10 );
+        JButton pauseBtn = new JButton("Pause");
+        pauseBtn.addActionListener(e -> {
+            running = false;
+        });
+
+        /* Reset la grille button */
+        JButton resetGrilleBtn = new JButton("Reset Grille");
+        
+        JSlider densite = new JSlider(0,100,50 );
         densite.setMajorTickSpacing(20);
         densite.setMinorTickSpacing(5);
         densite.setPaintTicks(true);
         densite.setPaintLabels(true);
         densite.addChangeListener(e -> {
             jeu.setProba(densite.getValue() / 100);
+        });
+        resetGrilleBtn.addActionListener(e -> {
+            jeu.initializeGrille();
+            jeu.notifieObservateurs();
         });
         JButton resetZoomBtn = new JButton("Reset zoom");
         resetZoomBtn.addActionListener(e -> {
@@ -58,7 +84,8 @@ public class JeuDeLaVieUI extends JPanel implements Observateur, MouseWheelListe
         topPanel.add(new JLabel("Densité:"));
         topPanel.add(densite);
         topPanel.add(resetGrilleBtn);
-
+        topPanel.add(playBtn);
+        
         frame.add(topPanel, BorderLayout.NORTH);
         frame.add(this, BorderLayout.CENTER);
         frame.setVisible(true);

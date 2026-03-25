@@ -11,10 +11,5 @@ public class Main {
         jeu.attacheObservateur(ui);
         jeu.setVisiteur(new VisiteurClassique(jeu));
         jeu.notifieObservateurs();
-
-        while (true) {
-            Thread.sleep(100);
-            jeu.calculeGenerationSuivante();
-        }
     }
 }
