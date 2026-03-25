@@ -60,16 +60,16 @@ public class JeuDeLaVieUI extends JPanel implements Observateur, MouseWheelListe
         /* Reset la grille button */
         JButton resetGrilleBtn = new JButton("Reset Grille");
         
-        JSlider densite = new JSlider(0,100,50 );
+        JSlider densite = new JSlider(0,100,10 );
         densite.setMajorTickSpacing(20);
         densite.setMinorTickSpacing(5);
         densite.setPaintTicks(true);
         densite.setPaintLabels(true);
-        densite.addChangeListener(e -> {
-            jeu.setProba(densite.getValue() / 100);
-        });
         resetGrilleBtn.addActionListener(e -> {
+            jeu.setProba(densite.getValue() / 100.0);
+            System.out.println("Avant :" + jeu.getProba());
             jeu.initializeGrille();
+            System.out.println("Apres :" + jeu.getProba());
             jeu.notifieObservateurs();
         });
         JButton resetZoomBtn = new JButton("Reset zoom");
