@@ -30,7 +30,23 @@ public class JeuDeLaVieUI extends JPanel implements Observateur, MouseWheelListe
         addMouseWheelListener(this);
         addMouseListener(this);
         addMouseMotionListener(this);
-        JButton resetZoomBtn = new JButton("Reset");
+
+        /* Reset la grille button */
+        JButton resetGrilleBtn = new JButton("Reset Grille");
+        resetGrilleBtn.addActionListener(e -> {
+            jeu.initializeGrille();
+            jeu.notifieObservateurs();
+        });
+
+        JSlider densite = new JSlider(0,100,10 );
+        densite.setMajorTickSpacing(20);
+        densite.setMinorTickSpacing(5);
+        densite.setPaintTicks(true);
+        densite.setPaintLabels(true);
+        densite.addChangeListener(e -> {
+            jeu.setProba(densite.getValue() / 100);
+        });
+        JButton resetZoomBtn = new JButton("Reset zoom");
         resetZoomBtn.addActionListener(e -> {
             zoomFactor = 1.0;
             offsetX = 0;
@@ -39,6 +55,9 @@ public class JeuDeLaVieUI extends JPanel implements Observateur, MouseWheelListe
         });
         JPanel topPanel = new JPanel();
         topPanel.add(resetZoomBtn);
+        topPanel.add(new JLabel("Densité:"));
+        topPanel.add(densite);
+        topPanel.add(resetGrilleBtn);
 
         frame.add(topPanel, BorderLayout.NORTH);
         frame.add(this, BorderLayout.CENTER);
