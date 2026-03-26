@@ -15,7 +15,9 @@ import java.util.List;
 
 import observateur.Observateur;
 import visiteur.VisiteurHighLife;
+import visiteur.VisiteurVieSansMort;
 import visiteur.VisiteurClassique;
+import visiteur.VisiteurCovid;
 import visiteur.VisiteurDayNight;
 
 import json.*;
@@ -46,7 +48,7 @@ public class JeuDeLaVieUI extends JPanel implements Observateur, MouseWheelListe
     public JeuDeLaVieUI(JeuDeLaVie jeu) {
         this.jeu = jeu;
         setBackground(Color.WHITE);
-        timer = new Timer(100,e -> jeu.calculeGenerationSuivante());
+        timer = new Timer(100, e -> jeu.calculeGenerationSuivante());
         gestionStructures = new Gestionstructure("src/json/structures.txt");
 
         JFrame frame = new JFrame("Jeu de la Vie");
@@ -72,6 +74,12 @@ public class JeuDeLaVieUI extends JPanel implements Observateur, MouseWheelListe
         JTextField fieldX = new JTextField(String.valueOf(jeu.getxMax()),5);
         JTextField fieldY = new JTextField(String.valueOf(jeu.getyMax()),5);
 
+        JComboBox<String> structureDepart = new JComboBox<>();
+        structureDepart.addItem("Aleatoire");
+        for(Structure s: gestionStructures.charger()){
+            structureDepart.addItem(s.getNom());
+        }
+        
         JButton resetZoomButton = new JButton("Recentrer");
         resetZoomButton.addActionListener(e->{
             zoomFactor = 1.0;
@@ -98,8 +106,15 @@ public class JeuDeLaVieUI extends JPanel implements Observateur, MouseWheelListe
             }catch(NumberFormatException ex){
                 System.out.println("Erreur , le format de la grille est invalide");
             }
-            jeu.setProba(densite.getValue()/100.0);
-            jeu.initializeGrille();
+            int idDepart = structureDepart.getSelectedIndex();
+            if(idDepart == 0){
+                jeu.setProba(densite.getValue()/100.0);
+                jeu.initializeGrille();
+            }else{
+                List<Structure> structures = gestionStructures.charger();
+                jeu.initializeGrilleStrucutre(structures.get(idDepart - 1).getCellules());
+            }
+            
             labelTaille.setText(jeu.getxMax() + "x" + jeu.getyMax());
             jeu.notifieObservateurs();
         });
@@ -114,6 +129,8 @@ public class JeuDeLaVieUI extends JPanel implements Observateur, MouseWheelListe
         pannelTaille.add(labelTaille);
         pannelTaille.add(champsTaille);
 
+        topPanel.add(new JLabel("Départ"));
+        topPanel.add(structureDepart);
         topPanel.add(resetZoomButton);
         topPanel.add(pannelTaille);
         topPanel.add(new JLabel("Densité"));
@@ -172,7 +189,7 @@ public class JeuDeLaVieUI extends JPanel implements Observateur, MouseWheelListe
         JPanel sectionRegles = new JPanel(new FlowLayout(FlowLayout.CENTER, 5, 2));
         sectionRegles.setBorder(BorderFactory.createTitledBorder("R\u00E8gles"));
 
-        String[] mode = {"Classique", "HighLife", "Day & Night"};
+        String[] mode = {"Classique", "HighLife", "Day & Night" , "Immortel" , "Plague"};
         comboRegles = new JComboBox<>(mode);
         comboRegles.addItemListener(e -> {
             if (e.getStateChange() == ItemEvent.SELECTED) {
@@ -180,6 +197,8 @@ public class JeuDeLaVieUI extends JPanel implements Observateur, MouseWheelListe
                     case 0: jeu.setVisiteur(new VisiteurClassique(jeu)); break;
                     case 1: jeu.setVisiteur(new VisiteurHighLife(jeu)); break;
                     case 2: jeu.setVisiteur(new VisiteurDayNight(jeu)); break;
+                    case 3: jeu.setVisiteur(new VisiteurVieSansMort(jeu)); break;
+                    case 4: jeu.setVisiteur(new VisiteurCovid(jeu)); break;
                 }
             }
         });
@@ -240,8 +259,8 @@ public class JeuDeLaVieUI extends JPanel implements Observateur, MouseWheelListe
     }
 
     @Override
-    public void paint(Graphics g) {
-        super.paint(g);
+    protected void paintComponent(Graphics g) {
+        super.paintComponent(g);
         Graphics2D g2 = (Graphics2D) g;
         AffineTransform at = g2.getTransform();
 
@@ -270,9 +289,9 @@ public class JeuDeLaVieUI extends JPanel implements Observateur, MouseWheelListe
             }
         }
         if (modeSelection && selX1 != -1) {
-        g2.setColor(Color.RED);
-        g2.drawRect(selX1 * CELL_SIZE, selY1 * CELL_SIZE, CELL_SIZE, CELL_SIZE); // point 1 marqué
-    }
+            g2.setColor(Color.RED);
+            g2.drawRect(selX1 * CELL_SIZE, selY1 * CELL_SIZE, CELL_SIZE, CELL_SIZE);
+        }
 
         g2.setTransform(at);
     }
@@ -305,6 +324,7 @@ public class JeuDeLaVieUI extends JPanel implements Observateur, MouseWheelListe
             dessinerCellule(g[0], g[1]);
         }
     }
+
     @Override
     public void mouseDragged(MouseEvent e) {
         if (modeDessin) {
@@ -333,12 +353,12 @@ public class JeuDeLaVieUI extends JPanel implements Observateur, MouseWheelListe
     }
 
     @Override public void mouseReleased(MouseEvent e) {}
+
     @Override
     public void mouseClicked(MouseEvent e) {
-        int centreX = (getWidth() - (int)(jeu.getxMax() * CELL_SIZE * zoomFactor)) / 2;
-        int centreY = (getHeight() - (int)(jeu.getyMax() * CELL_SIZE * zoomFactor)) / 2;
-        int gx = (int) ((e.getX() - centreX - offsetX) / zoomFactor / CELL_SIZE);
-        int gy = (int) ((e.getY() - centreY - offsetY) / zoomFactor / CELL_SIZE);
+        int[] coords = screenToGrid(e.getX(), e.getY());
+        int gx = coords[0];
+        int gy = coords[1];
 
         if (modePlacement) {
             jeu.placeStructure(structureAPoser, gx, gy);

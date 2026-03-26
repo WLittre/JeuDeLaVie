@@ -44,4 +44,12 @@ public class Cellule {
     public boolean estVivante() {
         return etat.estVivante();
     }
+
+    public int getX() {
+        return x;
+    }
+
+    public int getY() {
+        return y;
+    }
 }

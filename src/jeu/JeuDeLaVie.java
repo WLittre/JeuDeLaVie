@@ -43,6 +43,33 @@ public class JeuDeLaVie implements Observable {
         }
     }
 
+    public void initializeGrilleVide(){
+        grille = new Cellule[xMax][yMax];
+        for (int i = 0; i < xMax; i++) {
+            for (int j = 0; j < yMax; j++) {
+                grille[i][j] = new Cellule(i, j, SingletonEtat.getMort());
+            }
+        }
+    }
+
+    public void initializeGrilleStrucutre(List<int[]> cellules){
+        initializeGrilleVide();
+        int maxCx = 0;
+        int maxCy = 0;
+        for(int[] c : cellules){
+            if(c[0]>maxCx)maxCx = c[0];
+            if(c[1]>maxCy)maxCy = c[1];
+        }
+        int offsetX = xMax/2 - maxCx/2;
+        int offsetY = yMax/2 - maxCy/2;
+        for(int[] c : cellules){
+            int x = offsetX + c[0];
+            int y = offsetY + c[1];
+            if(x>=0 && x < xMax && y>=0 && y < yMax){
+                grille[x][y].vit();
+            }
+        }
+    }
     /*
      * OBSERVATEURS -------------------------------------
      */
@@ -119,7 +146,7 @@ public class JeuDeLaVie implements Observable {
     }
     public void setVisiteur(Visiteur v) {
         this.visiteur = v;
-        System.out.println("[Règle] Visiteur changé -> " + v.getClass().getSimpleName());
+        System.out.println("Visiteur changé : " + v.getClass().getSimpleName());
     }
 
     /* Gestion des structures */
