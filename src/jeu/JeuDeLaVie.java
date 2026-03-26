@@ -23,8 +23,8 @@ public class JeuDeLaVie implements Observable {
     
     public JeuDeLaVie() {
         probaVie = 0.2;
-        this.xMax = 200;
-        this.yMax = 200;
+        this.xMax = 100;
+        this.yMax = 100;
         observateurs = new ArrayList<>();
         commandes = new ArrayList<>();
         initializeGrille();
@@ -119,5 +119,32 @@ public class JeuDeLaVie implements Observable {
     }
     public void setVisiteur(Visiteur v) {
         this.visiteur = v;
+        System.out.println("[Règle] Visiteur changé -> " + v.getClass().getSimpleName());
+    }
+
+    /* Gestion des structures */
+    public List<int[]> extractStructure(int x1,int y1,int x2,int y2){
+        int minX = Math.min(x1, x2), minY = Math.min(y1, y2);
+        int maxX = Math.max(x1, x2), maxY = Math.max(y1, y2);
+        List<int[]> cellules = new ArrayList<>();
+        for (int i = minX; i <= maxX; i++) {
+            for (int j = minY; j <= maxY; j++) {
+                if (i >= 0 && i < xMax && j >= 0 && j < yMax && grille[i][j].estVivante()) {
+                    cellules.add(new int[]{i - minX, j - minY});
+                }
+            }
+        }
+        return cellules;
+    }
+
+    public void placeStructure(List<int[]>cellules,int px,int py){
+        for(int[] c : cellules){
+            int x = px + c[0];
+            int y = py + c[1];
+            if( x>=0 && x < xMax && y >= 0 && y < yMax ){
+                grille[x][y].vit();
+            }
+        }
+        notifieObservateurs();
     }
 }
