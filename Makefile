@@ -31,4 +31,7 @@ clean:
 
 rebuild: clean all
 
-.PHONY: all compile run clean rebuild
+javadoc:
+	javadoc -d docs/javadoc -sourcepath $(SRC) -overview $(SRC)/overview.html --allow-script-in-comments -subpackages cellule:commande:etat:jeu:json:observateur:visiteur
+
+.PHONY: all compile run clean rebuild javadoc

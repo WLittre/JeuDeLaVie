@@ -1,0 +1,220 @@
+<html>
+<body>
+<h1>Jeu de la Vie</h1>
+<p>Implementation du Jeu de la Vie de Conway en Java utilisant plusieurs Design Patterns :</p>
+<ul>
+    <li><b>Pattern Etat</b> : Gestion des etats vivant/mort d'une cellule via l'interface <code>CelluleEtat</code> et ses implementations <code>CelluleEtatVivant</code> / <code>CelluleEtatMort</code>, avec un Singleton pour les instances uniques.</li>
+    <li><b>Pattern Observateur</b> : <code>JeuDeLaVie</code> implemente <code>Observable</code> et notifie ses observateurs (<code>JeuDeLaVieUI</code>, <code>ObservateurConsole</code>) a chaque changement de generation.</li>
+    <li><b>Pattern Commande</b> : Les transitions de cellules sont encapsulees dans des commandes (<code>CommandeVit</code>, <code>CommandeMeurt</code>) executees en une seule passe apres le calcul.</li>
+    <li><b>Pattern Visiteur</b> : Les regles du jeu sont implementees dans des visiteurs interchangeables (<code>VisiteurClassique</code>, <code>VisiteurHighLife</code>, <code>VisiteurDayNight</code>, <code>VisiteurVieSansMort</code>, <code>VisiteurCovid</code>).</li>
+</ul>
+<p>Le projet inclut egalement un systeme de sauvegarde/chargement de structures via les classes <code>Structure</code> et <code>Gestionstructure</code>.</p>
+
+<h2>Diagramme de classes</h2>
+<pre class="mermaid">
+classDiagram
+    class Cellule {
+        -CelluleEtat etat
+        -int x
+        -int y
+        +Cellule(int x, int y, CelluleEtat etat)
+        +vit() void
+        +meurt() void
+        +estVivante() boolean
+        +nombreVoisinesVivantes(JeuDeLaVie jeu) int
+        +accepte(Visiteur visiteur) void
+        +getX() int
+        +getY() int
+    }
+
+    class CelluleEtat {
+        &lt;&lt;interface&gt;&gt;
+        +vit() CelluleEtat
+        +meurt() CelluleEtat
+        +estVivante() boolean
+        +accepte(Visiteur v, Cellule c) void
+    }
+
+    class CelluleEtatVivant {
+        +vit() CelluleEtat
+        +meurt() CelluleEtat
+        +estVivante() boolean
+        +accepte(Visiteur v, Cellule c) void
+    }
+
+    class CelluleEtatMort {
+        +vit() CelluleEtat
+        +meurt() CelluleEtat
+        +estVivante() boolean
+        +accepte(Visiteur v, Cellule c) void
+    }
+
+    class SingletonEtat {
+        -static final CelluleEtatVivant VIVANT
+        -static final CelluleEtatMort MORT
+        +static getVivant() CelluleEtatVivant
+        +static getMort() CelluleEtatMort
+    }
+
+    class Observable {
+        &lt;&lt;interface&gt;&gt;
+        +attacheObservateur(Observateur o) void
+        +detacheObservateur(Observateur o) void
+        +notifieObservateurs() void
+    }
+
+    class Observateur {
+        &lt;&lt;interface&gt;&gt;
+        +actualise() void
+    }
+
+    class JeuDeLaVie {
+        -Cellule[][] grille
+        -int xMax
+        -int yMax
+        -double probaVie
+        -List~Observateur~ observateurs
+        -List~Commande~ commandes
+        -Visiteur visiteur
+        +JeuDeLaVie()
+        +initializeGrille() void
+        +initializeGrilleVide() void
+        +initializeGrilleStrucutre(List cellules) void
+        +attacheObservateur(Observateur o) void
+        +detacheObservateur(Observateur o) void
+        +notifieObservateurs() void
+        +ajouteCommandes(Commande c) void
+        +executeCommande() void
+        +distribueVisiteur() void
+        +calculeGenerationSuivante() void
+        +setVisiteur(Visiteur v) void
+        +extractStructure(int x1, int y1, int x2, int y2) List
+        +placeStructure(List cellules, int px, int py) void
+        +getGrilleXY(int x, int y) Cellule
+        +getxMax() int
+        +getyMax() int
+    }
+
+    class JeuDeLaVieUI {
+        -JeuDeLaVie jeu
+        -Timer timer
+        -boolean enCours
+        -double zoomFactor
+        -int offsetX
+        -int offsetY
+        -boolean modeDessin
+        -boolean modeSelection
+        -boolean modePlacement
+        +JeuDeLaVieUI(JeuDeLaVie jeu)
+        +actualise() void
+        #paintComponent(Graphics g) void
+    }
+
+    class ObservateurConsole {
+        -int generation
+        -int celluleVivante
+        -JeuDeLaVie jeu
+        +ObservateurConsole(JeuDeLaVie jeu)
+        +actualise() void
+    }
+
+    class Commande {
+        &lt;&lt;abstract&gt;&gt;
+        #Cellule cellule
+        +executer() void*
+    }
+
+    class CommandeVit {
+        +CommandeVit(Cellule c)
+        +executer() void
+    }
+
+    class CommandeMeurt {
+        +CommandeMeurt(Cellule c)
+        +executer() void
+    }
+
+    class Visiteur {
+        &lt;&lt;abstract&gt;&gt;
+        #JeuDeLaVie jeu
+        +Visiteur(JeuDeLaVie jeu)
+        +visiteCelluleVivante(Cellule c) void*
+        +visiteCelluleMorte(Cellule c) void*
+    }
+
+    class VisiteurClassique {
+        +visiteCelluleVivante(Cellule c) void
+        +visiteCelluleMorte(Cellule c) void
+    }
+
+    class VisiteurHighLife {
+        +visiteCelluleVivante(Cellule c) void
+        +visiteCelluleMorte(Cellule c) void
+    }
+
+    class VisiteurDayNight {
+        +visiteCelluleVivante(Cellule c) void
+        +visiteCelluleMorte(Cellule c) void
+    }
+
+    class VisiteurVieSansMort {
+        +visiteCelluleVivante(Cellule c) void
+        +visiteCelluleMorte(Cellule c) void
+    }
+
+    class VisiteurCovid {
+        +visiteCelluleVivante(Cellule c) void
+        +visiteCelluleMorte(Cellule c) void
+    }
+
+    class Structure {
+        -String nom
+        -List~int[]~ cellules
+        +Structure(String nom, List cellules)
+        +getNom() String
+        +getCellules() List
+    }
+
+    class Gestionstructure {
+        -String path
+        +Gestionstructure(String path)
+        +charger() List~Structure~
+        +sauvegarder(List structures) void
+    }
+
+    Cellule --> CelluleEtat : utilise
+    CelluleEtatVivant ..|> CelluleEtat : implemente
+    CelluleEtatMort ..|> CelluleEtat : implemente
+    CelluleEtatVivant --> SingletonEtat : utilise
+    CelluleEtatMort --> SingletonEtat : utilise
+
+    JeuDeLaVie ..|> Observable : implemente
+    JeuDeLaVieUI ..|> Observateur : implemente
+    ObservateurConsole ..|> Observateur : implemente
+    JeuDeLaVie --> Observateur : notifie
+    JeuDeLaVie --> Cellule : contient
+    JeuDeLaVie --> Commande : stocke
+    JeuDeLaVie --> Visiteur : utilise
+
+    CommandeVit --|> Commande : herite
+    CommandeMeurt --|> Commande : herite
+    Commande --> Cellule : agit sur
+
+    VisiteurClassique --|> Visiteur : herite
+    VisiteurHighLife --|> Visiteur : herite
+    VisiteurDayNight --|> Visiteur : herite
+    VisiteurVieSansMort --|> Visiteur : herite
+    VisiteurCovid --|> Visiteur : herite
+    Visiteur --> JeuDeLaVie : reference
+
+    JeuDeLaVieUI --> JeuDeLaVie : observe
+    ObservateurConsole --> JeuDeLaVie : observe
+    JeuDeLaVieUI --> Gestionstructure : utilise
+    Gestionstructure --> Structure : gere
+</pre>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script>
+<script>
+    mermaid.initialize({ startOnLoad: true, theme: 'default' });
+</script>
+</body>
+</html>

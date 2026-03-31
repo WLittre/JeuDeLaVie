@@ -8,12 +8,25 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
 
+/**
+ * Classe gerant le chargement et la sauvegarde des structures dans un fichier texte
+ * @author LWilliam
+ * @version 1.0
+ */
 public class Gestionstructure {
     private String path;
+    /**
+     * Constructeur avec le chemin vers le fichier de structures
+     * @param path le chemin du fichier texte
+     */
     public Gestionstructure(String path){
         this.path = path;
     }
 
+    /**
+     * Charge toutes les structures depuis le fichier texte
+     * @return la liste des structures chargees
+     */
     public List<Structure> charger(){
         List<Structure> structures = new ArrayList<>();
         try(Scanner sc = new Scanner(new File(path))){
@@ -37,6 +50,10 @@ public class Gestionstructure {
         return structures;
     }
 
+    /**
+     * Sauvegarde la liste de structures dans le fichier texte
+     * @param structures la liste des structures a sauvegarder
+     */
     public void sauvegarder(List<Structure> structures){
         try(PrintWriter pw = new PrintWriter(new FileWriter(path))){
             for(Structure s : structures){

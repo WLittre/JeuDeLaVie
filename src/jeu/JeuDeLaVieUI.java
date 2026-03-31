@@ -22,6 +22,11 @@ import visiteur.VisiteurDayNight;
 
 import json.*;
 
+/**
+ * Interface graphique du jeu, observateur de JeuDeLaVie, gere l'affichage et les interactions souris
+ * @author LWilliam
+ * @version 1.0
+ */
 public class JeuDeLaVieUI extends JPanel implements Observateur, MouseWheelListener , MouseListener , MouseMotionListener {
     private static final int CELL_SIZE = 10;
     private JeuDeLaVie jeu;
@@ -45,6 +50,10 @@ public class JeuDeLaVieUI extends JPanel implements Observateur, MouseWheelListe
     private Gestionstructure gestionStructures;
     private JComboBox<String> comboStructures;
 
+    /**
+     * Constructeur de l'UI, initialise la fenetre, les panneaux et les ecouteurs souris
+     * @param jeu l'instance du jeu a afficher
+     */
     public JeuDeLaVieUI(JeuDeLaVie jeu) {
         this.jeu = jeu;
         setBackground(Color.WHITE);
@@ -68,6 +77,10 @@ public class JeuDeLaVieUI extends JPanel implements Observateur, MouseWheelListe
         frame.setVisible(true);
     }
        
+    /**
+     * Cree le panneau superieur avec les options de taille, densite et structure de depart
+     * @return le panneau superieur
+     */
     private JPanel creerPanneauTop(){
         JPanel topPanel = new JPanel();
         JLabel labelTaille = new JLabel(jeu.getxMax() + "x" + jeu.getyMax());
@@ -140,6 +153,10 @@ public class JeuDeLaVieUI extends JPanel implements Observateur, MouseWheelListe
         return topPanel;
     }
 
+    /**
+     * Cree le panneau de controle avec les boutons play/pause, step, dessin, vitesse, regles et structures
+     * @return le panneau de controle
+     */
     private JPanel creerPanneauControle(){
         JPanel panneau = new JPanel(new FlowLayout(FlowLayout.CENTER, 8, 4));
 
@@ -166,7 +183,7 @@ public class JeuDeLaVieUI extends JPanel implements Observateur, MouseWheelListe
         JButton btnDessin = new JButton("Dessiner");
         btnDessin.addActionListener(e -> {
             modeDessin = !modeDessin;
-            btnDessin.setText(modeDessin ? "Arr\u00EAter" : "Dessiner");
+            btnDessin.setText(modeDessin ? "Arreter" : "Dessiner");
         });
 
         sectionSim.add(btnPlayPause);
@@ -187,7 +204,7 @@ public class JeuDeLaVieUI extends JPanel implements Observateur, MouseWheelListe
         sectionVitesse.add(sliderVitesse);
 
         JPanel sectionRegles = new JPanel(new FlowLayout(FlowLayout.CENTER, 5, 2));
-        sectionRegles.setBorder(BorderFactory.createTitledBorder("R\u00E8gles"));
+        sectionRegles.setBorder(BorderFactory.createTitledBorder("Regles"));
 
         String[] mode = {"Classique", "HighLife", "Day & Night" , "Immortel" , "Plague"};
         comboRegles = new JComboBox<>(mode);
@@ -232,7 +249,7 @@ public class JeuDeLaVieUI extends JPanel implements Observateur, MouseWheelListe
             modeSelection = true;
             selX1 = -1;
             selY1 = -1;
-            JOptionPane.showMessageDialog(this, "Cliquez sur 2 points de la grille pour d\u00E9finir la zone.");
+            JOptionPane.showMessageDialog(this, "Cliquez sur 2 points de la grille pour definir la zone.");
         });
 
         sectionStructures.add(comboStructures);
@@ -247,17 +264,26 @@ public class JeuDeLaVieUI extends JPanel implements Observateur, MouseWheelListe
         return panneau;
     }
 
+    /**
+     * Rafraichit la liste deroulante des structures sauvegardees
+     */
     private void rafraichirComboStructures(){
         comboStructures.removeAllItems();
         for(Structure s : gestionStructures.charger()){
             comboStructures.addItem(s.getNom());
         }
     }
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public void actualise() {
         repaint();
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
@@ -295,6 +321,12 @@ public class JeuDeLaVieUI extends JPanel implements Observateur, MouseWheelListe
 
         g2.setTransform(at);
     }
+    /**
+     * Convertit les coordonnees ecran en coordonnees de la grille
+     * @param sx coordonnee x de l'ecran
+     * @param sy coordonnee y de l'ecran
+     * @return tableau avec les coordonnees {grilleX, grilleY}
+     */
     private int[] screenToGrid(int sx, int sy) {
         int centreX = (getWidth() - (int)(jeu.getxMax() * CELL_SIZE * zoomFactor)) / 2;
         int centreY = (getHeight() - (int)(jeu.getyMax() * CELL_SIZE * zoomFactor)) / 2;
@@ -303,6 +335,11 @@ public class JeuDeLaVieUI extends JPanel implements Observateur, MouseWheelListe
         return new int[]{gx, gy};
     }
 
+    /**
+     * Dessine ou efface une cellule a la position donnee sur la grille
+     * @param gx coordonnee x sur la grille
+     * @param gy coordonnee y sur la grille
+     */
     private void dessinerCellule(int gx, int gy) {
         if (gx >= 0 && gx < jeu.getxMax() && gy >= 0 && gy < jeu.getyMax()) {
             if (dessinEfface) {
@@ -314,6 +351,9 @@ public class JeuDeLaVieUI extends JPanel implements Observateur, MouseWheelListe
         }
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public void mousePressed(MouseEvent e) {
         lastDragX = e.getX();
@@ -325,6 +365,9 @@ public class JeuDeLaVieUI extends JPanel implements Observateur, MouseWheelListe
         }
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public void mouseDragged(MouseEvent e) {
         if (modeDessin) {
@@ -340,6 +383,9 @@ public class JeuDeLaVieUI extends JPanel implements Observateur, MouseWheelListe
             repaint();
         }
     }
+    /**
+     * {@inheritDoc}
+     */
     public void mouseWheelMoved(MouseWheelEvent e){
     //Zoom in
     if (e.getWheelRotation() < 0) {
@@ -354,6 +400,9 @@ public class JeuDeLaVieUI extends JPanel implements Observateur, MouseWheelListe
 
     @Override public void mouseReleased(MouseEvent e) {}
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public void mouseClicked(MouseEvent e) {
         int[] coords = screenToGrid(e.getX(), e.getY());

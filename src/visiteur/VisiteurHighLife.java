@@ -5,11 +5,23 @@ import commande.CommandeMeurt;
 import commande.CommandeVit;
 import jeu.JeuDeLaVie;
 
+/**
+ * Visiteur implementant les regles HighLife (nait si 3 ou 6 voisines)
+ * @author LWilliam
+ * @version 1.0
+ */
 public class VisiteurHighLife extends Visiteur{
+    /**
+     * Constructeur du visiteur HighLife
+     * @param jeu l'instance du jeu en cours
+     */
     public VisiteurHighLife(JeuDeLaVie jeu){
         super(jeu);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public void visiteCelluleVivante(Cellule c) {
         int nb = c.nombreVoisinesVivantes(jeu);
@@ -18,6 +30,9 @@ public class VisiteurHighLife extends Visiteur{
         }
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public void visiteCelluleMorte(Cellule c) {
         int nb = c.nombreVoisinesVivantes(jeu);
