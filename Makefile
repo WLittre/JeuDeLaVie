@@ -35,3 +35,7 @@ javadoc:
 	javadoc -d docs/javadoc -sourcepath $(SRC) -overview $(SRC)/overview.html --allow-script-in-comments -subpackages cellule:commande:etat:jeu:json:observateur:visiteur
 
 .PHONY: all compile run clean rebuild javadoc
+
+jar: compile
+	echo Main-Class: Main > manifest.txt
+	jar cfm JeuDeLaVie.jar manifest.txt -C bin .
